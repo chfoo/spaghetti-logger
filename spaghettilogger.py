@@ -18,7 +18,7 @@ import irc.message
 
 _logger = logging.getLogger(__name__)
 
-__version__ = '1.0'
+__version__ = '1.0.1'
 
 
 class LineWriter(object):
@@ -229,6 +229,7 @@ class Client(irc.client.SimpleIRCClient):
 
     def on_disconnect(self, connection, event):
         _logger.info('Disconnected!')
+        self._chat_logger.stop()
 
         if self._running:
             self._schedule_reconnect()
