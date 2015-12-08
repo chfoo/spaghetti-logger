@@ -12,13 +12,14 @@ import signal
 import time
 
 import irc.client
+import irc.ctcp
 import irc.strings
 import irc.message
 
 
 _logger = logging.getLogger(__name__)
 
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 
 
 class LineWriter(object):
@@ -189,6 +190,10 @@ class Client(irc.client.SimpleIRCClient):
             return result
 
         irc.message.Tag.from_group = new_from_group
+
+        # Monkey patch to preserve messages such as /me
+        # Fortunately, Twitch does not require CTCP replies
+        irc.ctcp.dequote = lambda msg: [msg]
 
     def autoconnect(self, *args, **kwargs):
         try:
