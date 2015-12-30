@@ -19,7 +19,7 @@ import irc.message
 
 _logger = logging.getLogger(__name__)
 
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 
 
 class LineWriter(object):
@@ -152,7 +152,7 @@ RECONNECT_SUCCESS_THRESHOLD = 60
 RECONNECT_MIN_INTERVAL = 2
 RECONNECT_MAX_INTERVAL = 300
 KEEP_ALIVE = 60
-IRC_RATE_LIMIT = 30 / (20 - 0.5)
+IRC_RATE_LIMIT = (20 - 0.5) / 30
 FILE_POLL_INTERVAL = 30
 
 
