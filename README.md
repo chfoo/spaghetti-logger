@@ -3,6 +3,8 @@ Spaghetti Logger
 
 Spaghetti Logger is a Twitch.tv chat logger.
 
+Fake Spaghetti Logger is a Beam.pro chat logger. See README.beam.md for instructions for Beam.
+
 
 Quick Start
 ===========
