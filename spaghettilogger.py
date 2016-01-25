@@ -19,15 +19,18 @@ import irc.message
 
 _logger = logging.getLogger(__name__)
 
-__version__ = '1.0.3'
+__version__ = '1.0.4'
 
 
 class LineWriter(object):
-    def __init__(self, log_dir, channel_name):
+    def __init__(self, log_dir, channel_name, encoding='latin-1',
+                 encoding_errors=None):
         self._log_dir = log_dir
         self._channel_name = channel_name
         self._file = None
         self._previous_date = None
+        self._encoding = encoding
+        self._encoding_errors = encoding_errors
 
         channel_dir = os.path.join(log_dir, channel_name)
 
@@ -47,7 +50,8 @@ class LineWriter(object):
                 current_date.isoformat() + '.log'
             )
 
-            self._file = open(path, 'a', encoding='latin-1')
+            self._file = open(path, 'a', encoding=self._encoding,
+                              errors=self._encoding_errors)
 
         assert '\n' not in line, line
         assert '\r' not in line, line

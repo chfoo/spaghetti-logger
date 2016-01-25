@@ -15,12 +15,13 @@ from spaghettilogger import LineWriter, RECONNECT_MIN_INTERVAL, \
 
 _logger = logging.getLogger(__name__)
 
-__version__ = '1.0'
+__version__ = '1.0.1'
 
 
 class Client(object):
     def __init__(self, url, channel_id, log_dir):
-        self._writer = LineWriter(log_dir, str(channel_id))
+        self._writer = LineWriter(log_dir, str(channel_id), encoding='utf-8',
+                                  encoding_errors='replace')
         self._url = url
         self._channel_id = channel_id
 
