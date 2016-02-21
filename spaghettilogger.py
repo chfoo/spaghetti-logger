@@ -19,7 +19,7 @@ import irc.message
 
 _logger = logging.getLogger(__name__)
 
-__version__ = '1.0.4'
+__version__ = '1.0.5'
 
 
 class LineWriter(object):
@@ -233,7 +233,7 @@ class Client(irc.client.SimpleIRCClient):
         self.connection.cap('REQ', 'twitch.tv/membership')
         self.connection.cap('REQ', 'twitch.tv/commands')
         self.connection.cap('REQ', 'twitch.tv/tags')
-        self._load_channels()
+        self._load_channels(force_reload=True)
         self._last_connect = time.time()
 
     def on_disconnect(self, connection, event):
@@ -241,6 +241,7 @@ class Client(irc.client.SimpleIRCClient):
         self._chat_logger.stop()
 
         if self._running:
+            self._joined_channels.clear()
             self._schedule_reconnect()
 
     def on_join(self, connection, event):
@@ -314,10 +315,10 @@ class Client(irc.client.SimpleIRCClient):
             self.connection.part(channel)
             self._chat_logger.remove_channel(channel)
 
-    def _load_channels(self):
+    def _load_channels(self, force_reload=False):
         new_time = os.path.getmtime(self._channels_file)
 
-        if new_time == self._channels_file_timestamp:
+        if not force_reload and new_time == self._channels_file_timestamp:
             return
 
         self._channels_file_timestamp = new_time
