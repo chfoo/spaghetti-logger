@@ -19,7 +19,7 @@ import irc.message
 
 _logger = logging.getLogger(__name__)
 
-__version__ = '1.0.5'
+__version__ = '1.1'
 
 
 class LineWriter(object):
@@ -109,12 +109,13 @@ class ChatLogger(object):
             )
         )
 
-    def log_clearchat(self, channel, nick=None):
+    def log_clearchat(self, channel, nick=None, tags=None):
         self._write_line(
             channel,
-            'clearchat {nick}'.format(
-                nick=nick if nick else ''
-            )
+            'clearchat {tags} :{nick}'.format(
+                nick=nick if nick else '',
+                tags=tags if tags else ''
+            ),
         )
 
     def log_join(self, channel, nick):
@@ -296,8 +297,9 @@ class Client(irc.client.SimpleIRCClient):
     def on_clearchat(self, connection, event):
         channel = irc.strings.lower(event.target)
         nick = event.arguments[0] if event.arguments else None
+        tags = event.tags.raw if event.tags else None
 
-        self._chat_logger.log_clearchat(channel, nick)
+        self._chat_logger.log_clearchat(channel, nick, tags=tags)
 
     def _join_new_channels(self):
         new_channels = frozenset(self._channels) - self._joined_channels
