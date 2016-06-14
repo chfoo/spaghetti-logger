@@ -19,7 +19,7 @@ import irc.message
 
 _logger = logging.getLogger(__name__)
 
-__version__ = '1.1'
+__version__ = '1.1.1'
 
 
 class LineWriter(object):
@@ -109,6 +109,15 @@ class ChatLogger(object):
             )
         )
 
+    def log_usernotice(self, channel, msg=None, tags=None):
+        self._write_line(
+            channel,
+            'usernotice {tags} :{msg}'.format(
+                msg=msg if msg else '',
+                tags=tags if tags else ''
+            )
+        )
+
     def log_clearchat(self, channel, nick=None, tags=None):
         self._write_line(
             channel,
@@ -166,7 +175,7 @@ class ListWrapper(list):
 
 
 class Client(irc.client.SimpleIRCClient):
-    def __init__(self, chat_logger, channels_file):
+    def __init__(self, chat_logger: ChatLogger, channels_file):
         super().__init__()
         self._chat_logger = chat_logger
         self._channels_file = channels_file
@@ -300,6 +309,16 @@ class Client(irc.client.SimpleIRCClient):
         tags = event.tags.raw if event.tags else None
 
         self._chat_logger.log_clearchat(channel, nick, tags=tags)
+
+    def on_usernotice(self, connection, event):
+        channel = irc.strings.lower(event.target)
+        msg = event.arguments[0] if event.arguments else None
+
+        self._chat_logger.log_usernotice(
+            channel,
+            msg,
+            event.tags.raw if event.tags else None
+        )
 
     def _join_new_channels(self):
         new_channels = frozenset(self._channels) - self._joined_channels
