@@ -166,7 +166,7 @@ RECONNECT_SUCCESS_THRESHOLD = 60
 RECONNECT_MIN_INTERVAL = 2
 RECONNECT_MAX_INTERVAL = 300
 KEEP_ALIVE = 60
-IRC_RATE_LIMIT = (20 - 0.5) / 30
+IRC_RATE_LIMIT = (20 - 0.1) / 30
 FILE_POLL_INTERVAL = 30
 
 
@@ -187,7 +187,6 @@ class Client(irc.client.SimpleIRCClient):
         self._last_connect = 0
 
         irc.client.ServerConnection.buffer_class.encoding = 'latin-1'
-        self.connection.set_rate_limit(IRC_RATE_LIMIT)
 
         self.reactor.execute_every(FILE_POLL_INTERVAL, self._load_channels)
         self.reactor.execute_every(KEEP_ALIVE, self._keep_alive)
@@ -210,6 +209,7 @@ class Client(irc.client.SimpleIRCClient):
         irc.ctcp.dequote = lambda msg: [msg]
 
     def autoconnect(self, *args, **kwargs):
+        self.connection.set_rate_limit(float('+inf'))
         try:
             if args:
                 self.connect(*args, **kwargs)
@@ -243,6 +243,7 @@ class Client(irc.client.SimpleIRCClient):
         self.connection.cap('REQ', 'twitch.tv/membership')
         self.connection.cap('REQ', 'twitch.tv/commands')
         self.connection.cap('REQ', 'twitch.tv/tags')
+        self.connection.set_rate_limit(IRC_RATE_LIMIT)
         self._load_channels(force_reload=True)
         self._last_connect = time.time()
 
