@@ -323,10 +323,11 @@ class Client(irc.client.SimpleIRCClient):
     def _join_new_channels(self):
         new_channels = frozenset(self._channels) - self._joined_channels
 
-        for channel in new_channels:
-            _logger.info('Joining %s', channel)
-            self._chat_logger.add_channel(channel)
-            self.connection.join(channel)
+        for channel in self._channels:
+            if channel in new_channels:
+                _logger.info('Joining %s', channel)
+                self._chat_logger.add_channel(channel)
+                self.connection.join(channel)
 
     def _part_old_channels(self):
         old_channels = self._joined_channels - frozenset(self._channels)
