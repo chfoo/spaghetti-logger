@@ -11,6 +11,7 @@ import sys
 import signal
 import time
 
+import functools
 import irc.client
 import irc.ctcp
 import irc.strings
@@ -19,7 +20,7 @@ import irc.message
 
 _logger = logging.getLogger(__name__)
 
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 
 
 class LineWriter(object):
@@ -323,11 +324,22 @@ class Client(irc.client.SimpleIRCClient):
 
     def _join_new_channels(self):
         new_channels = frozenset(self._channels) - self._joined_channels
+        join_channels = tuple(
+            channel for channel in self._channels if channel in new_channels
+        )
 
-        for channel in self._channels:
-            if channel in new_channels:
-                _logger.info('Joining %s', channel)
-                self._chat_logger.add_channel(channel)
+        for index, channel in enumerate(join_channels):
+            _logger.info('Joining %s', channel)
+            self._chat_logger.add_channel(channel)
+
+            if hasattr(self.connection.send_raw, 'max_rate'):
+                # Give the Reactor loop a chance to process incoming
+                # messages especially on server connect
+                self.connection.execute_delayed(
+                    1 / self.connection.send_raw.max_rate * index,
+                    functools.partial(self.connection.join, channel)
+                )
+            else:
                 self.connection.join(channel)
 
     def _part_old_channels(self):
