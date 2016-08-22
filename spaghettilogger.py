@@ -20,7 +20,7 @@ import irc.message
 
 _logger = logging.getLogger(__name__)
 
-__version__ = '1.1.3'
+__version__ = '1.1.4'
 
 
 class LineWriter(object):
@@ -223,7 +223,7 @@ class Client(irc.client.SimpleIRCClient):
     def _schedule_reconnect(self):
         time_now = time.time()
 
-        if time_now - self._last_connect > RECONNECT_SUCCESS_THRESHOLD:
+        if not self._last_connect or time_now - self._last_connect < RECONNECT_SUCCESS_THRESHOLD:
             self._reconnect_time *= 2
             self._reconnect_time = min(RECONNECT_MAX_INTERVAL,
                                        self._reconnect_time)
@@ -254,6 +254,7 @@ class Client(irc.client.SimpleIRCClient):
 
         if self._running:
             self._joined_channels.clear()
+            self._last_connect = 0
             self._schedule_reconnect()
 
     def on_join(self, connection, event):
