@@ -22,7 +22,7 @@ import irc.message
 
 _logger = logging.getLogger(__name__)
 
-__version__ = '1.1.4'
+__version__ = '1.1.5'
 
 
 class LineWriter(object):
