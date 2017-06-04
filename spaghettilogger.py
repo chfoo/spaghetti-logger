@@ -12,6 +12,8 @@ import signal
 import time
 
 import functools
+from itertools import zip_longest
+
 import irc.client
 import irc.ctcp
 import irc.strings
@@ -328,10 +330,16 @@ class Client(irc.client.SimpleIRCClient):
         join_channels = tuple(
             channel for channel in self._channels if channel in new_channels
         )
+        join_multi = tuple(
+            ','.join(channel for channel in group if channel) for group in grouper(join_channels, 25)
+        )
 
-        for index, channel in enumerate(join_channels):
-            _logger.info('Joining %s', channel)
+        for channel in join_channels:
+            _logger.info('Channel to join: %s', channel)
             self._chat_logger.add_channel(channel)
+
+        for index, channel in enumerate(join_multi):
+            _logger.info('Joining %s', channel)
 
             if hasattr(self.connection.send_raw, 'max_rate'):
                 # Give the Reactor loop a chance to process incoming
@@ -378,6 +386,13 @@ class Client(irc.client.SimpleIRCClient):
     def _keep_alive(self):
         if self.connection.is_connected():
             self.connection.ping('keep-alive')
+
+
+def grouper(iterable, n, fillvalue=None):
+    "Collect data into fixed-length chunks or blocks"
+    # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
 
 
 def main():
