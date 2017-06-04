@@ -415,7 +415,6 @@ def main():
     def stop(dummy1, dummy2):
         nonlocal running
         running = False
-        client.stop()
 
     client.autoconnect(args.host, args.port, nickname, password=password)
 
@@ -424,6 +423,8 @@ def main():
 
     while running:
         client.reactor.process_once(0.2)
+
+    client.stop()
 
     _logger.info('Stopped IRC client.')
 
