@@ -43,16 +43,18 @@ The logger will log the following
 * PART
 * MOD
 * CLEARCHAT
+* USERNOTICE
 
-Note: Not all channels use the main server. Some use the Event servers which you will need to check for. Use http://tmi.twitch.tv/servers?channel=CHANNEL_NAME_HERE (e.g., riotgames) to get the IP address and add the `--host` option when running the logger.
 
 For group chats, the logger needs to be logged in. Check https://chatdepot.twitch.tv/room_memberships?oauth_token=OAUTH_TOKEN_HERE for IP addresses and channel name. Use `--nickname` and `--oauth-path OAUTH_FILENAME` where `OAUTH_FILENAME` is a text file containing your oauth token.
 
-For details of the IRC protocol, see https://github.com/justintv/Twitch-API/blob/master/IRC.md .
+For details of the IRC protocol, see https://dev.twitch.tv/docs/v5/guides/irc/ .
+
+In the event the IRC address changes, use `--host` option when running the logger.
 
 
 Credits
 =======
 
-Copyright 2015 Christopher Foo. License: GPLv3
+Copyright 2015-2017 Christopher Foo. License: GPLv3
 
