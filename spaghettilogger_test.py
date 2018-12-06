@@ -54,6 +54,7 @@ class TestLogger(unittest.TestCase):
                 self.wfile.write(b'@badges=;color=;display-name=Naughty_User;emotes=;mod=0;room-id=1337;subscriber=0;turbo=1;user-id=1337;user-type= :naughty_user!naughty_user@naughty_user.tmi.twitch.tv PRIVMSG #test_channel :\x01ACTION OneHand\x01\n')
                 self.wfile.write(b'@badges=global_mod/1,turbo/1;color=#0D4200;display-name=TWITCH_UserNaME;emotes=25:0-4,12-16/1902:6-10;mod=0;room-id=1337;subscriber=0;turbo=1;user-id=1337;user-type=global_mod :twitch_username!twitch_username@twitch_username.tmi.twitch.tv PRIVMSG #test_channel :Kappa Keepo Kappa\n')
                 self.wfile.write(b'@badges=staff/1,broadcaster/1,turbo/1;color=#008000;display-name=TWITCH_UserName;emotes=;mod=0;msg-id=resub;msg-param-months=6;room-id=1337;subscriber=1;system-msg=TWITCH_UserName\shas\ssubscribed\sfor\s6\smonths!;login=twitch_username;turbo=1;user-id=1337;user-type=staff :tmi.twitch.tv USERNOTICE #test_channel :Great stream -- keep it up!\n')
+                self.wfile.write(b'@login=ronni;target-msg-id=abc-123-def :tmi.twitch.tv CLEARMSG #test_channel :HeyGuys\n')
 
                 thread_event.set()
 
@@ -114,3 +115,4 @@ class TestLogger(unittest.TestCase):
             self.assertIn('TWITCH_UserNaME', log_file_data)
             self.assertIn('Kappa Keepo', log_file_data)
             self.assertRegex(log_file_data, r'usernotice .*msg-param-months.* :Great stream')
+            self.assertIn('clearmsg login=ronni;target-msg-id=abc-123-def :HeyGuys', log_file_data)

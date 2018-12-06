@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''Twitch.tv Chat Logger'''
-# Copyright 2015 Christopher Foo. License: GPLv3
+# Copyright 2015-2018 Christopher Foo. License: GPLv3
 
 import argparse
 import datetime
@@ -22,7 +22,7 @@ import irc.message
 
 _logger = logging.getLogger(__name__)
 
-__version__ = '1.1.5'
+__version__ = '1.2'
 
 
 class LineWriter(object):
@@ -127,7 +127,16 @@ class ChatLogger(object):
             'clearchat {tags} :{nick}'.format(
                 nick=nick if nick else '',
                 tags=tags if tags else ''
-            ),
+            )
+        )
+
+    def log_clearmsg(self, channel, message=None, tags=None):
+        self._write_line(
+            channel,
+            'clearmsg {tags} :{message}'.format(
+                message=message if message else '',
+                tags=tags if tags else ''
+            )
         )
 
     def log_join(self, channel, nick):
@@ -191,8 +200,8 @@ class Client(irc.client.SimpleIRCClient):
 
         irc.client.ServerConnection.buffer_class.encoding = 'latin-1'
 
-        self.reactor.execute_every(FILE_POLL_INTERVAL, self._load_channels)
-        self.reactor.execute_every(KEEP_ALIVE, self._keep_alive)
+        self.reactor.scheduler.execute_every(FILE_POLL_INTERVAL, self._load_channels)
+        self.reactor.scheduler.execute_every(KEEP_ALIVE, self._keep_alive)
 
         # Monkey patch to include raw tags so we don't have to serialize it
         # again
@@ -233,8 +242,8 @@ class Client(irc.client.SimpleIRCClient):
             self._reconnect_time = RECONNECT_MIN_INTERVAL
 
         _logger.info('Reconnecting in %s seconds.', self._reconnect_time)
-        self.reactor.execute_delayed(self._reconnect_time,
-                                     self.autoconnect)
+        self.reactor.scheduler.execute_after(self._reconnect_time,
+                                             self.autoconnect)
 
     def stop(self):
         self._running = False
@@ -315,6 +324,13 @@ class Client(irc.client.SimpleIRCClient):
 
         self._chat_logger.log_clearchat(channel, nick, tags=tags)
 
+    def on_clearmsg(self, connection, event):
+        channel = irc.strings.lower(event.target)
+        message = event.arguments[0] if event.arguments else None
+        tags = event.tags.raw if event.tags else None
+
+        self._chat_logger.log_clearmsg(channel, message, tags=tags)
+
     def on_usernotice(self, connection, event):
         channel = irc.strings.lower(event.target)
         msg = event.arguments[0] if event.arguments else None
@@ -344,7 +360,7 @@ class Client(irc.client.SimpleIRCClient):
             if hasattr(self.connection.send_raw, 'max_rate'):
                 # Give the Reactor loop a chance to process incoming
                 # messages especially on server connect
-                self.connection.execute_delayed(
+                self.reactor.scheduler.execute_after(
                     1 / self.connection.send_raw.max_rate * index,
                     functools.partial(self.connection.join, channel)
                 )

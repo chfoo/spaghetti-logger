@@ -12,7 +12,7 @@ Quick Start
 Requires
 
 * [Python](https://www.python.org/) 3.3+
-* [irc](https://pypi.python.org/pypi/irc) Python library version 13+
+* [irc](https://pypi.python.org/pypi/irc) Python library version 15+
 
 You can install the required Python libraries using Pip. Assuming Linux system:
 
@@ -56,5 +56,4 @@ In the event the IRC address changes, use `--host` option when running the logge
 Credits
 =======
 
-Copyright 2015-2017 Christopher Foo. License: GPLv3
-
+Copyright 2015-2018 Christopher Foo. License: GPLv3
